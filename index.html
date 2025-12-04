@@ -3,22 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Joyas Solo Para Mí - Catálogo & Sistema</title>
+    <title>Joyas Solo Para Mí - Boutique</title>
     
-    <!-- 1. Cargar React y ReactDOM desde CDN -->
+    <!-- React & ReactDOM -->
     <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-    
-    <!-- 2. Cargar Babel para traducir el código moderno -->
+    <!-- Babel -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    
-    <!-- 3. Cargar Tailwind CSS para el diseño -->
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Iconos -->
+    <script src="https://unpkg.com/lucide@latest"></script>
     
-    <!-- 4. Fuentes de Google -->
+    <!-- Fuentes -->
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
 
-    <!-- Configuración de Colores -->
     <script>
         tailwind.config = {
             theme: {
@@ -28,6 +27,7 @@
                         'gold-main': '#D4AF37',   
                         'gold-dark': '#B8860B',   
                         'gold-text': '#8B6508',
+                        'bg-cream': '#FDFCF5'
                     },
                     fontFamily: {
                         serif: ['"Playfair Display"', 'serif'],
@@ -37,56 +37,89 @@
             }
         }
     </script>
-
     <style>
         body { background-color: #FDFCF5; }
-        .fade-in { animation: fadeIn 0.5s ease-in-out; }
+        .fade-in { animation: fadeIn 0.4s ease-in-out; }
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
+        /* Scrollbar personalizado fino */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #D4AF37; border-radius: 4px; }
     </style>
 </head>
 <body>
-    <!-- Aquí es donde React dibujará la app -->
     <div id="root"></div>
 
-    <!-- Tu Lógica de la App -->
     <script type="text/babel">
-        // Importante: Usamos la versión global de React
-        const { useState, useEffect } = React;
+        const { useState, useEffect, useMemo } = React;
 
-        // --- DATOS ---
+        // --- DATOS EXTENDIDOS (Con tallas y colores para los filtros) ---
         const initialProducts = [
-            { id: 1, name: "Anillo Eternidad Oro", price: 1200, category: "Anillos", image: "https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&q=80&w=500" },
-            { id: 2, name: "Collar Perla Lunar", price: 850, category: "Collares", image: "https://images.unsplash.com/photo-1599643478518-17488fbbcd75?auto=format&fit=crop&q=80&w=500" },
-            { id: 3, name: "Aretes Gota de Sol", price: 450, category: "Aretes", image: "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&q=80&w=500" },
-            { id: 4, name: "Brazalete Imperial", price: 2100, category: "Pulseras", image: "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?auto=format&fit=crop&q=80&w=500" },
-            { id: 5, name: "Anillo Zafiro Real", price: 3200, category: "Anillos", image: "https://images.unsplash.com/photo-1603561591411-cd7eb9526935?auto=format&fit=crop&q=80&w=500" },
-            { id: 6, name: "Colgante Corazón Oro", price: 670, category: "Collares", image: "https://images.unsplash.com/photo-1602751584552-8ba420552259?auto=format&fit=crop&q=80&w=500" },
-            { id: 7, name: "Piercing Nostril Gold", price: 120, category: "Piercing", image: "https://images.unsplash.com/photo-1629224316810-9d8805b95076?auto=format&fit=crop&q=80&w=500" },
-            { id: 8, name: "Reloj Vintage Gold", price: 5500, category: "Relojes", image: "https://images.unsplash.com/photo-1587836374828-4dbafa94cf0e?auto=format&fit=crop&q=80&w=500" },
+            { id: 1, name: "Anillo Eternidad Oro", price: 1200, category: "Anillos", size: "16mm", color: "Oro", image: "https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&q=80&w=500" },
+            { id: 2, name: "Collar Perla Lunar", price: 850, category: "Collares", size: "45cm", color: "Plata", image: "https://images.unsplash.com/photo-1599643478518-17488fbbcd75?auto=format&fit=crop&q=80&w=500" },
+            { id: 3, name: "Aretes Gota de Sol", price: 450, category: "Aretes", size: "Única", color: "Oro", image: "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&q=80&w=500" },
+            { id: 4, name: "Brazalete Imperial", price: 2100, category: "Pulseras", size: "18cm", color: "Oro Rosa", image: "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?auto=format&fit=crop&q=80&w=500" },
+            { id: 5, name: "Anillo Zafiro Real", price: 3200, category: "Anillos", size: "17mm", color: "Plata", image: "https://images.unsplash.com/photo-1603561591411-cd7eb9526935?auto=format&fit=crop&q=80&w=500" },
+            { id: 6, name: "Colgante Corazón", price: 670, category: "Collares", size: "50cm", color: "Oro", image: "https://images.unsplash.com/photo-1602751584552-8ba420552259?auto=format&fit=crop&q=80&w=500" },
+            { id: 7, name: "Piercing Nostril", price: 120, category: "Piercing", size: "Única", color: "Oro", image: "https://images.unsplash.com/photo-1629224316810-9d8805b95076?auto=format&fit=crop&q=80&w=500" },
+            { id: 8, name: "Reloj Vintage", price: 5500, category: "Relojes", size: "Única", color: "Oro", image: "https://images.unsplash.com/photo-1587836374828-4dbafa94cf0e?auto=format&fit=crop&q=80&w=500" },
         ];
 
-        // --- COMPONENTES VISUALES ---
-        const CartIcon = () => (
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
-        );
-        const SearchIcon = () => (
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-        );
-        const UserIcon = () => (
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-        );
+        // --- ICONOS SVG ---
+        const Icons = {
+            Cart: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>,
+            Search: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>,
+            User: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>,
+            Trash: () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>,
+            Check: () => <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="text-white"><polyline points="20 6 9 17 4 12"></polyline></svg>,
+            ChevronDown: () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        };
 
-        // --- APLICACIÓN PRINCIPAL ---
+        // --- MODAL DE PAGO EXITOSO ---
+        const SuccessModal = ({ isOpen, onClose, total, count }) => {
+            if (!isOpen) return null;
+            return (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 fade-in">
+                    <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-sm w-full text-center relative overflow-hidden">
+                        <div className="flex justify-center mb-6">
+                            <div className="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center shadow-lg">
+                                <Icons.Check />
+                            </div>
+                        </div>
+                        <h2 className="text-2xl font-serif font-bold text-gray-800 mb-2">¡Pago Realizado!</h2>
+                        <p className="text-gray-500 mb-6 text-sm">Tu compra ha sido procesada exitosamente.</p>
+                        
+                        <div className="bg-pink-50 rounded-lg p-4 mb-6 border border-pink-100">
+                            <p className="text-sm text-gray-600">Total pagado: <span className="font-bold text-gray-800">${total}</span></p>
+                            <p className="text-sm text-gray-600">Productos: <span className="font-bold text-gray-800">{count} artículos</span></p>
+                        </div>
+                        
+                        <p className="text-xs text-gray-400 italic mb-6">Recibirás un correo de confirmación en breve</p>
+                        
+                        <button onClick={onClose} className="w-full bg-gold-main hover:bg-gold-dark text-white font-bold py-3 rounded-lg shadow-md transition-all transform hover:scale-[1.02]">
+                            Aceptar
+                        </button>
+                    </div>
+                </div>
+            );
+        };
+
         function App() {
-            const [view, setView] = useState('home'); 
+            const [view, setView] = useState('home');
             const [cart, setCart] = useState([]);
-            const [sales, setSales] = useState([]); 
+            const [sales, setSales] = useState([]);
             const [searchTerm, setSearchTerm] = useState("");
-            const [notification, setNotification] = useState(null);
+            const [selectedCategory, setSelectedCategory] = useState("Todas");
+            const [showSuccessModal, setShowSuccessModal] = useState(false);
+            const [lastOrderTotal, setLastOrderTotal] = useState(0);
 
+            // Filtros de Catálogo
+            const categories = ["Todas", "Anillos", "Collares", "Aretes", "Pulseras", "Relojes"];
+
+            // Lógica del Carrito
             const addToCart = (product) => {
                 const existing = cart.find(item => item.id === product.id);
                 if (existing) {
@@ -94,283 +127,288 @@
                 } else {
                     setCart([...cart, {...product, qty: 1}]);
                 }
-                showNotification(`"${product.name}" agregado al carrito`);
+            };
+
+            const updateQty = (id, delta) => {
+                setCart(cart.map(item => {
+                    if (item.id === id) {
+                        const newQty = Math.max(1, item.qty + delta);
+                        return {...item, qty: newQty};
+                    }
+                    return item;
+                }));
             };
 
             const removeFromCart = (id) => {
                 setCart(cart.filter(item => item.id !== id));
             };
 
-            const checkout = () => {
-                if (cart.length === 0) return;
-                const total = cart.reduce((acc, item) => acc + (item.price * item.qty), 0);
+            const cartTotal = cart.reduce((acc, item) => acc + (item.price * item.qty), 0);
+            const cartCount = cart.reduce((acc, item) => acc + item.qty, 0);
+
+            const handleCheckout = () => {
+                setLastOrderTotal(cartTotal);
                 const newSale = {
                     id: Date.now(),
-                    date: new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString(),
+                    date: new Date().toLocaleDateString(),
                     items: [...cart],
-                    total: total,
-                    status: 'Completado'
+                    total: cartTotal
                 };
-                setSales([newSale, ...sales]); 
-                setCart([]); 
-                setView('sales'); 
-                showNotification("¡Venta realizada con éxito!");
+                setSales([newSale, ...sales]);
+                setCart([]);
+                setShowSuccessModal(true);
             };
 
-            const showNotification = (msg) => {
-                setNotification(msg);
-                setTimeout(() => setNotification(null), 3000);
-            };
+            // Filtrado de productos
+            const filteredProducts = initialProducts.filter(p => {
+                const matchSearch = p.name.toLowerCase().includes(searchTerm.toLowerCase());
+                const matchCategory = selectedCategory === "Todas" || p.category === selectedCategory;
+                return matchSearch && matchCategory;
+            });
 
-            const cartTotal = cart.reduce((acc, item) => acc + (item.price * item.qty), 0);
+            // VISTAS
+            const renderHome = () => (
+                <div className="fade-in">
+                    <div className="relative w-full h-[500px] overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1573408301185-9146fe634ad0?auto=format&fit=crop&q=80&w=1200" className="w-full h-full object-cover" />
+                        <div className="absolute inset-0 bg-black/40 flex flex-col justify-center items-center text-center text-white p-4">
+                            <h1 className="text-5xl md:text-7xl font-serif mb-4">Nueva Colección</h1>
+                            <p className="text-gold-light text-lg md:text-xl tracking-[0.2em] mb-8 font-light">ELEGANCIA . AUTENTICIDAD</p>
+                            <button onClick={() => setView('catalog')} className="bg-gold-main hover:bg-gold-dark text-white px-10 py-3 text-sm tracking-widest uppercase font-bold transition-colors">
+                                Ver Catálogo
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            );
 
-            const renderContent = () => {
-                switch(view) {
-                    case 'home':
-                    case 'catalog':
-                        return (
-                            <div className="fade-in">
-                                <div className="relative w-full h-96 bg-gray-100 overflow-hidden mb-12">
-                                    <img src="https://images.unsplash.com/photo-1573408301185-9146fe634ad0?auto=format&fit=crop&q=80&w=1200" className="w-full h-full object-cover opacity-90" alt="Hero" />
-                                    <div className="absolute inset-0 bg-black bg-opacity-30 flex flex-col items-center justify-center text-center">
-                                        <h2 className="text-5xl md:text-6xl text-white font-serif tracking-wide mb-4">Nueva Colección 2025</h2>
-                                        <p className="text-gold-light text-xl font-light tracking-wider mb-8">ELEGANCIA . AUTENTICIDAD . BRILLO</p>
-                                        <button onClick={() => document.getElementById('catalog-grid').scrollIntoView({behavior: 'smooth'})} className="px-8 py-3 bg-gold-main hover:bg-gold-dark text-white font-bold tracking-widest transition-colors uppercase text-sm">
-                                            Ver Catálogo
-                                        </button>
-                                    </div>
-                                </div>
+            const renderCatalog = () => (
+                <div className="max-w-7xl mx-auto px-4 py-8 fade-in flex flex-col md:flex-row gap-8">
+                    {/* Sidebar Filtros (Estilo de la imagen 814ac3) */}
+                    <div className="w-full md:w-64 flex-shrink-0 space-y-6">
+                        <div className="bg-white p-5 rounded-lg shadow-sm border border-gold-light/20">
+                            <h3 className="font-bold text-gray-800 mb-4 border-b pb-2">Categoría</h3>
+                            <ul className="space-y-2 text-sm text-gray-600">
+                                {categories.map(cat => (
+                                    <li key={cat} 
+                                        onClick={() => setSelectedCategory(cat)}
+                                        className={`cursor-pointer hover:text-gold-main transition-colors ${selectedCategory === cat ? 'text-gold-main font-bold' : ''}`}
+                                    >
+                                        {cat}
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
 
-                                <div id="catalog-grid" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
-                                    <div className="flex justify-between items-center mb-8 border-b border-gold-main/20 pb-4">
-                                        <h3 className="text-3xl font-serif text-gray-800">Catálogo de Joyas</h3>
-                                        <div className="relative">
-                                            <input 
-                                                type="text" 
-                                                placeholder="Buscar joya..." 
-                                                className="pl-10 pr-4 py-2 border border-gold-dark/30 rounded-full focus:outline-none focus:border-gold-main bg-white"
-                                                onChange={(e) => setSearchTerm(e.target.value)}
-                                            />
-                                            <span className="absolute left-3 top-2.5 text-gray-400"><SearchIcon /></span>
-                                        </div>
-                                    </div>
-
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-                                        {initialProducts.filter(p => p.name.toLowerCase().includes(searchTerm.toLowerCase())).map(product => (
-                                            <div key={product.id} className="group bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-transparent hover:border-gold-main/30">
-                                                <div className="relative h-64 overflow-hidden">
-                                                    <img src={product.image} alt={product.name} className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500" />
-                                                    <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-all"></div>
-                                                    <button 
-                                                        onClick={() => addToCart(product)}
-                                                        className="absolute bottom-4 right-4 bg-white text-gold-dark p-3 rounded-full shadow-lg translate-y-12 group-hover:translate-y-0 transition-transform duration-300 hover:bg-gold-main hover:text-white"
-                                                    >
-                                                        <CartIcon />
-                                                    </button>
-                                                </div>
-                                                <div className="p-6 text-center">
-                                                    <p className="text-xs text-gold-dark uppercase tracking-widest mb-1">{product.category}</p>
-                                                    <h4 className="text-lg font-serif text-gray-900 mb-2">{product.name}</h4>
-                                                    <p className="text-xl font-bold text-gray-800">${product.price}</p>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
+                        {/* Aquí cambié el filtro de "Tallas" por "Material" */}
+                        <div className="bg-white p-5 rounded-lg shadow-sm border border-gold-light/20">
+                            <h3 className="font-bold text-gray-800 mb-4 border-b pb-2">Material</h3>
+                            <div className="flex flex-wrap gap-2">
+                                {["Oro", "Plata", "Oro Rosa", "Diamante"].map(material => (
+                                    <span key={material} className="px-3 py-1 flex items-center justify-center border border-gray-200 text-xs text-gray-500 rounded-full hover:border-gold-main hover:text-gold-main cursor-pointer transition-colors">
+                                        {material}
+                                    </span>
+                                ))}
                             </div>
-                        );
-                    
-                    case 'cart':
-                        return (
-                            <div className="max-w-4xl mx-auto px-4 py-12 fade-in">
-                                <h2 className="text-3xl font-serif text-gray-800 mb-8 border-b pb-4">Tu Carrito de Compras</h2>
-                                {cart.length === 0 ? (
-                                    <div className="text-center py-20 bg-white rounded-lg shadow-sm border border-dashed border-gray-300">
-                                        <p className="text-xl text-gray-500 mb-4">Tu carrito está vacío</p>
-                                        <button onClick={() => setView('catalog')} className="text-gold-main font-bold hover:underline">Volver al catálogo</button>
+                        </div>
+                    </div>
+
+                    {/* Grid de Productos */}
+                    <div className="flex-1">
+                        <div className="flex justify-between items-center mb-6">
+                            <p className="text-sm text-gray-500">Mostrando {filteredProducts.length} productos</p>
+                            <div className="flex items-center gap-2">
+                                <span className="text-sm text-gray-500">Ordenar por:</span>
+                                <select className="text-sm border-none bg-transparent font-bold text-gray-700 focus:outline-none cursor-pointer">
+                                    <option>Relevancia</option>
+                                    <option>Precio: Menor a Mayor</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {filteredProducts.map(product => (
+                                <div key={product.id} className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 group">
+                                    <div className="relative h-64 overflow-hidden bg-gray-100">
+                                        <img src={product.image} alt={product.name} className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700" />
+                                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors"></div>
                                     </div>
-                                ) : (
-                                    <div className="bg-white rounded-lg shadow-lg overflow-hidden border border-gold-main/10">
-                                        <table className="w-full">
-                                            <thead className="bg-gold-light/30 text-gold-text uppercase text-xs tracking-wider">
-                                                <tr>
-                                                    <th className="px-6 py-4 text-left">Producto</th>
-                                                    <th className="px-6 py-4 text-center">Cantidad</th>
-                                                    <th className="px-6 py-4 text-right">Precio</th>
-                                                    <th className="px-6 py-4 text-center">Acción</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody className="divide-y divide-gray-100">
-                                                {cart.map(item => (
-                                                    <tr key={item.id} className="hover:bg-gray-50">
-                                                        <td className="px-6 py-4">
-                                                            <div className="flex items-center">
-                                                                <img src={item.image} className="h-12 w-12 object-cover rounded mr-4" />
-                                                                <span className="font-serif font-medium text-gray-800">{item.name}</span>
-                                                            </div>
-                                                        </td>
-                                                        <td className="px-6 py-4 text-center">{item.qty}</td>
-                                                        <td className="px-6 py-4 text-right font-bold">${item.price * item.qty}</td>
-                                                        <td className="px-6 py-4 text-center">
-                                                            <button onClick={() => removeFromCart(item.id)} className="text-red-400 hover:text-red-600 font-bold text-sm">Eliminar</button>
-                                                        </td>
-                                                    </tr>
-                                                ))}
-                                            </tbody>
-                                            <tfoot className="bg-gray-50">
-                                                <tr>
-                                                    <td colSpan="2" className="px-6 py-4 text-right font-bold text-gray-600 uppercase">Total a Pagar:</td>
-                                                    <td className="px-6 py-4 text-right font-bold text-2xl text-gold-dark">${cartTotal}</td>
-                                                    <td></td>
-                                                </tr>
-                                            </tfoot>
-                                        </table>
-                                        <div className="p-6 bg-gray-50 flex justify-end">
-                                            <button onClick={checkout} className="px-8 py-3 bg-gold-main hover:bg-gold-dark text-white font-bold shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5">
-                                                Confirmar Venta
+                                    <div className="p-4">
+                                        <p className="text-xs text-gold-dark uppercase tracking-widest mb-1">{product.category}</p>
+                                        <h3 className="font-serif text-lg text-gray-900 mb-1">{product.name}</h3>
+                                        <p className="text-gray-500 text-sm mb-3">Talla: {product.size} | Color: {product.color}</p>
+                                        <div className="flex items-center justify-between">
+                                            <span className="text-xl font-bold text-gold-text">${product.price.toFixed(2)}</span>
+                                            <button 
+                                                onClick={() => addToCart(product)}
+                                                className="bg-gray-900 hover:bg-gold-main text-white px-4 py-2 rounded text-sm font-bold transition-colors flex items-center gap-2"
+                                            >
+                                                <Icons.Cart /> Agregar
                                             </button>
                                         </div>
                                     </div>
-                                )}
-                            </div>
-                        );
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            );
 
-                    case 'sales':
-                        return (
-                            <div className="max-w-6xl mx-auto px-4 py-12 fade-in">
-                                <h2 className="text-3xl font-serif text-gray-800 mb-2">Registro de Ventas</h2>
-                                <p className="text-gray-500 mb-8">Historial de transacciones realizadas</p>
-                                
-                                {sales.length === 0 ? (
-                                    <div className="text-center py-20 bg-white rounded-lg border border-dashed border-gray-300">
-                                        <p className="text-gray-400">No hay ventas registradas aún.</p>
-                                    </div>
-                                ) : (
-                                    <div className="grid gap-6">
-                                        {sales.map(sale => (
-                                            <div key={sale.id} className="bg-white border-l-4 border-gold-main rounded-r-lg shadow-sm p-6 hover:shadow-md transition-shadow">
-                                                <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4">
-                                                    <div>
-                                                        <p className="text-xs text-gray-400 uppercase tracking-widest">ID Venta: #{sale.id}</p>
-                                                        <p className="font-bold text-gray-700">{sale.date}</p>
-                                                    </div>
-                                                    <span className="mt-2 md:mt-0 px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-bold uppercase">{sale.status}</span>
-                                                </div>
-                                                <div className="bg-gray-50 rounded p-4 mb-4">
-                                                    <p className="text-sm font-bold text-gray-600 mb-2">Artículos:</p>
-                                                    <ul className="list-disc list-inside text-sm text-gray-600">
-                                                        {sale.items.map((item, idx) => (
-                                                            <li key={idx}>{item.qty}x {item.name} - ${item.price}</li>
-                                                        ))}
-                                                    </ul>
-                                                </div>
-                                                <div className="text-right border-t pt-2">
-                                                    <span className="text-gray-500 mr-2">Total Venta:</span>
-                                                    <span className="text-2xl font-serif text-gold-dark font-bold">${sale.total}</span>
+            const renderCart = () => (
+                <div className="max-w-6xl mx-auto px-4 py-8 fade-in">
+                    <h2 className="text-3xl font-serif text-gray-800 mb-8">Mi Carrito de Compras</h2>
+                    
+                    {cart.length === 0 ? (
+                        <div className="text-center py-20 bg-white rounded-lg border border-dashed border-gray-300">
+                            <p className="text-xl text-gray-500 mb-4">Tu carrito está vacío</p>
+                            <button onClick={() => setView('catalog')} className="text-gold-main font-bold hover:underline">Ir a comprar</button>
+                        </div>
+                    ) : (
+                        <div className="flex flex-col lg:flex-row gap-8">
+                            {/* Lista de Items (Estilo imagen 814a6c) */}
+                            <div className="flex-1 space-y-4">
+                                {cart.map(item => (
+                                    <div key={item.id} className="bg-white p-4 rounded-lg shadow-sm flex gap-4 items-center border border-gold-light/10">
+                                        <img src={item.image} className="w-24 h-24 object-cover rounded bg-gray-100" />
+                                        <div className="flex-1">
+                                            <h4 className="font-bold text-gray-800 text-lg">{item.name}</h4>
+                                            <p className="text-sm text-gray-500 mb-2">Código: #{1000 + item.id}</p>
+                                            
+                                            <div className="flex items-center gap-4">
+                                                <div className="flex items-center border border-gray-300 rounded">
+                                                    <button onClick={() => updateQty(item.id, -1)} className="px-3 py-1 hover:bg-gray-100">-</button>
+                                                    <span className="px-3 py-1 font-bold text-gray-700 min-w-[30px] text-center">{item.qty}</span>
+                                                    <button onClick={() => updateQty(item.id, 1)} className="px-3 py-1 hover:bg-gray-100">+</button>
                                                 </div>
                                             </div>
-                                        ))}
+                                        </div>
+                                        <div className="text-right flex flex-col justify-between h-24">
+                                            <span className="text-xl font-bold text-gray-800">${(item.price * item.qty).toFixed(2)}</span>
+                                            <button onClick={() => removeFromCart(item.id)} className="text-red-400 hover:text-red-600 text-sm flex items-center justify-end gap-1">
+                                                <Icons.Trash /> Eliminar
+                                            </button>
+                                        </div>
                                     </div>
-                                )}
+                                ))}
                             </div>
-                        );
-                    
-                    case 'login':
-                        return (
-                            <div className="min-h-[70vh] flex items-center justify-center fade-in">
-                                <div className="bg-white p-10 rounded-xl shadow-2xl border-t-8 border-gold-main w-full max-w-md">
-                                    <h2 className="text-3xl font-serif text-center text-gray-800 mb-8">Inicio de Sesión</h2>
-                                    <form onSubmit={(e) => { e.preventDefault(); setView('catalog'); showNotification("Bienvenido Administrador"); }} className="space-y-6">
-                                        <div>
-                                            <label className="block text-gray-600 text-sm font-bold mb-2">Correo Electrónico</label>
-                                            <input type="email" className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-gold-main focus:ring-1 focus:ring-gold-main outline-none transition-colors" placeholder="admin@joyas.com" />
+
+                            {/* Resumen del Pedido */}
+                            <div className="w-full lg:w-96">
+                                <div className="bg-white p-6 rounded-lg shadow-lg border border-gold-light/20 sticky top-24">
+                                    <h3 className="font-bold text-lg mb-6 uppercase tracking-wider border-b pb-2">Resumen del Pedido</h3>
+                                    
+                                    <div className="space-y-3 mb-6">
+                                        <div className="flex justify-between text-gray-600">
+                                            <span>Subtotal</span>
+                                            <span>${cartTotal.toFixed(2)}</span>
                                         </div>
-                                        <div>
-                                            <label className="block text-gray-600 text-sm font-bold mb-2">Contraseña</label>
-                                            <input type="password" className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-gold-main focus:ring-1 focus:ring-gold-main outline-none transition-colors" placeholder="••••••••" />
+                                        <div className="flex justify-between text-gray-600">
+                                            <span>Envío</span>
+                                            <span className="text-green-600 font-bold">GRATIS</span>
                                         </div>
-                                        <button className="w-full bg-gold-main hover:bg-gold-dark text-white font-bold py-3 rounded-lg shadow-md transition-colors">
-                                            Ingresar al Sistema
+                                    </div>
+
+                                    <div className="mb-6">
+                                        <button className="flex justify-between items-center w-full text-sm font-bold text-gray-700 hover:text-gold-main">
+                                            ¿Tienes un código promocional?
+                                            <Icons.ChevronDown />
                                         </button>
-                                    </form>
+                                    </div>
+
+                                    <div className="border-t border-gray-200 pt-4 mb-6">
+                                        <div className="flex justify-between items-end">
+                                            <span className="font-bold text-xl text-gray-800">Total Estimado</span>
+                                            <span className="font-bold text-2xl text-gray-900">${cartTotal.toFixed(2)}</span>
+                                        </div>
+                                    </div>
+
+                                    <button onClick={handleCheckout} className="w-full bg-gold-main hover:bg-gold-dark text-white font-bold py-4 rounded-lg shadow-md transition-all text-lg mb-4">
+                                        Pagar Ahora
+                                    </button>
+                                    
+                                    <div className="flex items-center justify-center gap-2 text-xs text-gray-400">
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                                        Pago 100% seguro y protegido
+                                    </div>
                                 </div>
                             </div>
-                        );
+                        </div>
+                    )}
+                </div>
+            );
 
-                    default:
-                        return null;
-                }
-            };
-
+            // HEADER Y LAYOUT PRINCIPAL
             return (
-                <div className="min-h-screen flex flex-col font-sans">
-                    <div className="bg-gold-dark text-white text-xs text-center py-2 tracking-widest uppercase font-bold">
-                        Sistema de Gestión Interna & Catálogo Online
+                <div className="min-h-screen flex flex-col font-sans bg-bg-cream text-gray-800">
+                    <SuccessModal 
+                        isOpen={showSuccessModal} 
+                        onClose={() => { setShowSuccessModal(false); setView('home'); }} 
+                        total={lastOrderTotal}
+                        count={sales.length > 0 ? sales[0].items.length : 0}
+                    />
+
+                    {/* Barra Superior */}
+                    <div className="bg-gray-900 text-gold-light text-xs text-center py-2 tracking-widest uppercase font-bold">
+                        Envíos gratis en compras superiores a $500
                     </div>
 
-                    <nav className="bg-white shadow-md sticky top-0 z-50">
-                        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    {/* Navegación */}
+                    <nav className="bg-white shadow-sm sticky top-0 z-40">
+                        <div className="max-w-7xl mx-auto px-4">
                             <div className="flex justify-between items-center h-20">
+                                {/* Logo */}
                                 <div className="flex items-center cursor-pointer" onClick={() => setView('home')}>
-                                    <span className="text-3xl font-serif font-bold text-gray-800">Joyas</span>
+                                    <span className="text-3xl font-serif font-bold text-gray-900">Joyas</span>
                                     <span className="text-3xl font-serif font-bold text-gold-main ml-1">ParaMí</span>
                                 </div>
 
-                                <div className="hidden md:flex space-x-8 items-center">
-                                    <button onClick={() => setView('catalog')} className={`text-sm font-bold uppercase tracking-widest hover:text-gold-main transition-colors ${view === 'catalog' || view === 'home' ? 'text-gold-main border-b-2 border-gold-main' : 'text-gray-500'}`}>Catálogo</button>
-                                    <button onClick={() => setView('sales')} className={`text-sm font-bold uppercase tracking-widest hover:text-gold-main transition-colors ${view === 'sales' ? 'text-gold-main border-b-2 border-gold-main' : 'text-gray-500'}`}>Ventas</button>
-                                    <button onClick={() => setView('login')} className={`text-sm font-bold uppercase tracking-widest hover:text-gold-main transition-colors ${view === 'login' ? 'text-gold-main border-b-2 border-gold-main' : 'text-gray-500'}`}>Admin</button>
+                                {/* Menú Central */}
+                                <div className="hidden md:flex space-x-10">
+                                    <button onClick={() => setView('home')} className={`text-sm uppercase tracking-widest hover:text-gold-main font-bold ${view === 'home' ? 'text-gold-main' : 'text-gray-500'}`}>Inicio</button>
+                                    <button onClick={() => setView('catalog')} className={`text-sm uppercase tracking-widest hover:text-gold-main font-bold ${view === 'catalog' ? 'text-gold-main' : 'text-gray-500'}`}>Catálogo</button>
+                                    <button className="text-sm uppercase tracking-widest hover:text-gold-main font-bold text-gray-500">Nosotros</button>
                                 </div>
 
-                                <div className="flex items-center space-x-6">
-                                    <div className="relative cursor-pointer" onClick={() => setView('cart')}>
-                                        <CartIcon />
-                                        {cart.length > 0 && (
-                                            <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center animate-pulse">
-                                                {cart.reduce((acc, item) => acc + item.qty, 0)}
+                                {/* Iconos Derecha */}
+                                <div className="flex items-center gap-6">
+                                    <div className="relative hidden sm:block">
+                                        <input 
+                                            type="text" 
+                                            placeholder="Buscar..." 
+                                            className="pl-8 pr-4 py-1 border-b border-gray-300 focus:border-gold-main outline-none text-sm bg-transparent w-32 focus:w-48 transition-all"
+                                            onChange={(e) => setSearchTerm(e.target.value)}
+                                        />
+                                        <span className="absolute left-0 top-1.5 text-gray-400"><Icons.Search /></span>
+                                    </div>
+                                    <button className="hover:text-gold-main transition-colors"><Icons.User /></button>
+                                    <button onClick={() => setView('cart')} className="relative hover:text-gold-main transition-colors">
+                                        <Icons.Cart />
+                                        {cartCount > 0 && (
+                                            <span className="absolute -top-2 -right-2 bg-gold-main text-white text-[10px] font-bold h-4 w-4 rounded-full flex items-center justify-center">
+                                                {cartCount}
                                             </span>
                                         )}
-                                    </div>
-                                    <div className="cursor-pointer text-gray-600 hover:text-gold-main" onClick={() => setView('login')}>
-                                        <UserIcon />
-                                    </div>
+                                    </button>
                                 </div>
                             </div>
                         </div>
                     </nav>
 
+                    {/* Contenido Dinámico */}
                     <main className="flex-grow">
-                        {renderContent()}
+                        {view === 'home' && renderHome()}
+                        {view === 'catalog' && renderCatalog()}
+                        {view === 'cart' && renderCart()}
                     </main>
 
-                    <footer className="bg-gray-900 text-white py-12">
-                        <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-8">
-                            <div>
-                                <h3 className="text-xl font-serif text-gold-main mb-4">Joyas Solo Para Mí</h3>
-                                <p className="text-gray-400 text-sm">Gestión integral de inventario, ventas y autenticidad.</p>
-                            </div>
-                            <div>
-                                <h4 className="font-bold text-gray-200 mb-4 uppercase text-sm tracking-wider">Enlaces Rápidos</h4>
-                                <ul className="space-y-2 text-sm text-gray-400">
-                                    <li className="hover:text-gold-main cursor-pointer" onClick={() => setView('catalog')}>Inventario</li>
-                                    <li className="hover:text-gold-main cursor-pointer" onClick={() => setView('sales')}>Reportes de Venta</li>
-                                    <li className="hover:text-gold-main cursor-pointer">Autenticidad</li>
-                                </ul>
-                            </div>
-                            <div>
-                                <h4 className="font-bold text-gray-200 mb-4 uppercase text-sm tracking-wider">Contacto</h4>
-                                <p className="text-gray-400 text-sm">soporte@joyasparami.com</p>
-                            </div>
+                    {/* Footer */}
+                    <footer className="bg-white border-t border-gray-100 mt-12 py-12">
+                        <div className="max-w-7xl mx-auto px-4 text-center">
+                            <h3 className="text-2xl font-serif font-bold text-gray-900 mb-2">Joyas Solo Para Mí</h3>
+                            <p className="text-gray-500 text-sm mb-6">La elegancia es la única belleza que nunca se desvanece.</p>
+                            <div className="text-xs text-gray-400">© 2025 Todos los derechos reservados.</div>
                         </div>
-                        <div className="text-center mt-12 pt-8 border-t border-gray-800 text-xs text-gray-500">© 2024 Joyas Solo Para Mí.</div>
                     </footer>
-
-                    {notification && (
-                        <div className="fixed bottom-5 right-5 bg-gray-800 text-white px-6 py-3 rounded shadow-lg flex items-center space-x-3 fade-in z-50">
-                            <span className="text-gold-main">✓</span>
-                            <span>{notification}</span>
-                        </div>
-                    )}
                 </div>
             );
         }
