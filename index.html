@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Joyas Solo Para Mí - Boutique</title>
+    <title>Joyas Solo Para Mí - Boutique Inclusiva</title>
     
     <!-- React & ReactDOM -->
     <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
@@ -20,6 +20,7 @@
 
     <script>
         tailwind.config = {
+            darkMode: 'class', // Activamos modo oscuro manual
             theme: {
                 extend: {
                     colors: {
@@ -38,34 +39,73 @@
         }
     </script>
     <style>
-        body { background-color: #FDFCF5; }
+        body { 
+            background-color: #FDFCF5; 
+            transition: background-color 0.3s, color 0.3s;
+        }
+        
         .fade-in { animation: fadeIn 0.4s ease-in-out; }
+        
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        /* Scrollbar personalizado fino */
+
+        /* --- ESTILOS DE ACCESIBILIDAD --- */
+        
+        /* Modo Oscuro (Sobrescribe variables CSS) */
+        .mode-dark {
+            background-color: #1a1a1a !important;
+            color: #e5e5e5 !important;
+        }
+        .mode-dark .bg-white { background-color: #2d2d2d !important; color: #fff !important; border-color: #444 !important; }
+        .mode-dark .text-gray-800, .mode-dark .text-gray-900 { color: #f3f3f3 !important; }
+        .mode-dark .text-gray-600, .mode-dark .text-gray-500 { color: #ccc !important; }
+        .mode-dark nav, .mode-dark footer { background-color: #222 !important; border-color: #444 !important; }
+
+        /* Modo Daltonismo (Alto Contraste) */
+        .mode-daltonism {
+            filter: contrast(120%) saturate(110%);
+        }
+        .mode-daltonism .text-gold-main, 
+        .mode-daltonism .text-gold-dark, 
+        .mode-daltonism .bg-gold-main {
+            color: #0055ff !important; /* Cambiamos dorados por azules fuertes para mejor distinción */
+        }
+        .mode-daltonism .bg-gold-main {
+            background-color: #0055ff !important;
+            color: white !important;
+        }
+
+        /* Modo Epilepsia (Sin Animaciones) */
+        .mode-epilepsy *, .mode-epilepsy *::before, .mode-epilepsy *::after {
+            animation: none !important;
+            transition: none !important;
+            scroll-behavior: auto !important;
+        }
+
+        /* Scrollbar */
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #f1f1f1; }
         ::-webkit-scrollbar-thumb { background: #D4AF37; border-radius: 4px; }
     </style>
 </head>
-<body>
+<body id="app-body">
     <div id="root"></div>
 
     <script type="text/babel">
         const { useState, useEffect, useMemo } = React;
 
-        // --- DATOS EXTENDIDOS (Con tallas y colores para los filtros) ---
+        // --- DATOS ---
         const initialProducts = [
-            { id: 1, name: "Anillo Eternidad Oro", price: 1200, category: "Anillos", size: "16mm", color: "Oro", image: "https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&q=80&w=500" },
-            { id: 2, name: "Collar Perla Lunar", price: 850, category: "Collares", size: "45cm", color: "Plata", image: "https://images.unsplash.com/photo-1599643478518-17488fbbcd75?auto=format&fit=crop&q=80&w=500" },
-            { id: 3, name: "Aretes Gota de Sol", price: 450, category: "Aretes", size: "Única", color: "Oro", image: "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&q=80&w=500" },
-            { id: 4, name: "Brazalete Imperial", price: 2100, category: "Pulseras", size: "18cm", color: "Oro Rosa", image: "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?auto=format&fit=crop&q=80&w=500" },
-            { id: 5, name: "Anillo Zafiro Real", price: 3200, category: "Anillos", size: "17mm", color: "Plata", image: "https://images.unsplash.com/photo-1603561591411-cd7eb9526935?auto=format&fit=crop&q=80&w=500" },
-            { id: 6, name: "Colgante Corazón", price: 670, category: "Collares", size: "50cm", color: "Oro", image: "https://images.unsplash.com/photo-1602751584552-8ba420552259?auto=format&fit=crop&q=80&w=500" },
-            { id: 7, name: "Piercing Nostril", price: 120, category: "Piercing", size: "Única", color: "Oro", image: "https://images.unsplash.com/photo-1629224316810-9d8805b95076?auto=format&fit=crop&q=80&w=500" },
-            { id: 8, name: "Reloj Vintage", price: 5500, category: "Relojes", size: "Única", color: "Oro", image: "https://images.unsplash.com/photo-1587836374828-4dbafa94cf0e?auto=format&fit=crop&q=80&w=500" },
+            { id: 1, name: "Anillo Eternidad Oro", price: 1200, category: "Anillos", material: "Oro", image: "https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&q=80&w=500" },
+            { id: 2, name: "Collar Perla Lunar", price: 850, category: "Collares", material: "Plata", image: "https://images.unsplash.com/photo-1599643478518-17488fbbcd75?auto=format&fit=crop&q=80&w=500" },
+            { id: 3, name: "Aretes Gota de Sol", price: 450, category: "Aretes", material: "Oro", image: "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&q=80&w=500" },
+            { id: 4, name: "Brazalete Imperial", price: 2100, category: "Pulseras", material: "Oro Rosa", image: "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?auto=format&fit=crop&q=80&w=500" },
+            { id: 5, name: "Anillo Zafiro Real", price: 3200, category: "Anillos", material: "Diamante", image: "https://images.unsplash.com/photo-1603561591411-cd7eb9526935?auto=format&fit=crop&q=80&w=500" },
+            { id: 6, name: "Colgante Corazón", price: 670, category: "Collares", material: "Oro", image: "https://images.unsplash.com/photo-1602751584552-8ba420552259?auto=format&fit=crop&q=80&w=500" },
+            { id: 7, name: "Piercing Nostril", price: 120, category: "Piercing", material: "Oro", image: "https://images.unsplash.com/photo-1629224316810-9d8805b95076?auto=format&fit=crop&q=80&w=500" },
+            { id: 8, name: "Reloj Vintage", price: 5500, category: "Relojes", material: "Oro", image: "https://images.unsplash.com/photo-1587836374828-4dbafa94cf0e?auto=format&fit=crop&q=80&w=500" },
         ];
 
         // --- ICONOS SVG ---
@@ -75,10 +115,56 @@
             User: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>,
             Trash: () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>,
             Check: () => <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="text-white"><polyline points="20 6 9 17 4 12"></polyline></svg>,
-            ChevronDown: () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            ChevronDown: () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>,
+            Accessibility: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>, // Placeholder icon
+            Eye: () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>,
+            Moon: () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>,
+            Zap: () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
         };
 
-        // --- MODAL DE PAGO EXITOSO ---
+        // --- COMPONENTE MENÚ ACCESIBILIDAD ---
+        const AccessibilityMenu = ({ toggleMode, activeModes }) => {
+            const [isOpen, setIsOpen] = useState(false);
+
+            return (
+                <div className="fixed bottom-6 left-6 z-50">
+                    {isOpen && (
+                        <div className="mb-4 bg-white rounded-lg shadow-xl p-4 w-48 border border-gray-200 fade-in space-y-2">
+                            <h4 className="text-xs font-bold text-gray-500 uppercase mb-2">Accesibilidad</h4>
+                            
+                            <button 
+                                onClick={() => toggleMode('dark')}
+                                className={`w-full flex items-center gap-2 px-3 py-2 rounded text-sm transition-colors ${activeModes.dark ? 'bg-gray-800 text-white' : 'hover:bg-gray-100 text-gray-700'}`}
+                            >
+                                <Icons.Moon /> Modo Oscuro
+                            </button>
+                            
+                            <button 
+                                onClick={() => toggleMode('daltonism')}
+                                className={`w-full flex items-center gap-2 px-3 py-2 rounded text-sm transition-colors ${activeModes.daltonism ? 'bg-blue-600 text-white' : 'hover:bg-gray-100 text-gray-700'}`}
+                            >
+                                <Icons.Eye /> Daltonismo
+                            </button>
+                            
+                            <button 
+                                onClick={() => toggleMode('epilepsy')}
+                                className={`w-full flex items-center gap-2 px-3 py-2 rounded text-sm transition-colors ${activeModes.epilepsy ? 'bg-green-600 text-white' : 'hover:bg-gray-100 text-gray-700'}`}
+                            >
+                                <Icons.Zap /> Epilepsia
+                            </button>
+                        </div>
+                    )}
+                    <button 
+                        onClick={() => setIsOpen(!isOpen)}
+                        className="w-12 h-12 bg-blue-600 text-white rounded-full shadow-lg flex items-center justify-center hover:bg-blue-700 transition-transform hover:scale-110 focus:outline-none focus:ring-4 focus:ring-blue-300"
+                        title="Opciones de Accesibilidad"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="m4.93 4.93 14.14 14.14"/><path d="M12 2v20"/><path d="M2 12h20"/></svg>
+                    </button>
+                </div>
+            );
+        };
+
         const SuccessModal = ({ isOpen, onClose, total, count }) => {
             if (!isOpen) return null;
             return (
@@ -93,12 +179,9 @@
                         <p className="text-gray-500 mb-6 text-sm">Tu compra ha sido procesada exitosamente.</p>
                         
                         <div className="bg-pink-50 rounded-lg p-4 mb-6 border border-pink-100">
-                            <p className="text-sm text-gray-600">Total pagado: <span className="font-bold text-gray-800">${total}</span></p>
+                            <p className="text-sm text-gray-600">Total pagado: <span className="font-bold text-gray-800">${total.toFixed(2)}</span></p>
                             <p className="text-sm text-gray-600">Productos: <span className="font-bold text-gray-800">{count} artículos</span></p>
                         </div>
-                        
-                        <p className="text-xs text-gray-400 italic mb-6">Recibirás un correo de confirmación en breve</p>
-                        
                         <button onClick={onClose} className="w-full bg-gold-main hover:bg-gold-dark text-white font-bold py-3 rounded-lg shadow-md transition-all transform hover:scale-[1.02]">
                             Aceptar
                         </button>
@@ -112,14 +195,37 @@
             const [cart, setCart] = useState([]);
             const [sales, setSales] = useState([]);
             const [searchTerm, setSearchTerm] = useState("");
-            const [selectedCategory, setSelectedCategory] = useState("Todas");
             const [showSuccessModal, setShowSuccessModal] = useState(false);
             const [lastOrderTotal, setLastOrderTotal] = useState(0);
 
-            // Filtros de Catálogo
-            const categories = ["Todas", "Anillos", "Collares", "Aretes", "Pulseras", "Relojes"];
+            // Estados de Filtros
+            const [selectedCategory, setSelectedCategory] = useState("Todas");
+            const [selectedMaterial, setSelectedMaterial] = useState("Todos");
+            const [sortOption, setSortOption] = useState("Relevancia");
 
-            // Lógica del Carrito
+            // Estados de Accesibilidad
+            const [accessModes, setAccessModes] = useState({
+                dark: false,
+                daltonism: false,
+                epilepsy: false
+            });
+
+            // Función para alternar modos de accesibilidad
+            const toggleAccessMode = (mode) => {
+                const newModes = { ...accessModes, [mode]: !accessModes[mode] };
+                setAccessModes(newModes);
+                
+                // Aplicar clases al body para que afecte a toda la app
+                const body = document.getElementById('app-body');
+                if (mode === 'dark') body.classList.toggle('mode-dark');
+                if (mode === 'daltonism') body.classList.toggle('mode-daltonism');
+                if (mode === 'epilepsy') body.classList.toggle('mode-epilepsy');
+            };
+
+            const categories = ["Todas", "Anillos", "Collares", "Aretes", "Pulseras", "Relojes"];
+            const materials = ["Todos", "Oro", "Plata", "Oro Rosa", "Diamante"];
+
+            // --- Lógica del Carrito ---
             const addToCart = (product) => {
                 const existing = cart.find(item => item.id === product.id);
                 if (existing) {
@@ -159,14 +265,84 @@
                 setShowSuccessModal(true);
             };
 
-            // Filtrado de productos
-            const filteredProducts = initialProducts.filter(p => {
-                const matchSearch = p.name.toLowerCase().includes(searchTerm.toLowerCase());
-                const matchCategory = selectedCategory === "Todas" || p.category === selectedCategory;
-                return matchSearch && matchCategory;
-            });
+            // --- Lógica de Filtrado Avanzado ---
+            const filteredProducts = useMemo(() => {
+                let result = initialProducts.filter(p => {
+                    const matchSearch = p.name.toLowerCase().includes(searchTerm.toLowerCase());
+                    const matchCategory = selectedCategory === "Todas" || p.category === selectedCategory;
+                    const matchMaterial = selectedMaterial === "Todos" || p.material === selectedMaterial;
+                    return matchSearch && matchCategory && matchMaterial;
+                });
 
-            // VISTAS
+                // Lógica de Ordenamiento
+                if (sortOption === "Precio: Menor a Mayor") {
+                    result.sort((a, b) => a.price - b.price);
+                } else if (sortOption === "Precio: Mayor a Menor") {
+                    result.sort((a, b) => b.price - a.price);
+                }
+                
+                return result;
+            }, [searchTerm, selectedCategory, selectedMaterial, sortOption]);
+
+            // --- VISTAS ---
+
+            const renderNosotros = () => (
+                <div className="max-w-7xl mx-auto px-4 py-12 fade-in">
+                    <div className="bg-white rounded-lg shadow-lg overflow-hidden flex flex-col md:flex-row border border-gold-light/20">
+                        <div className="md:w-1/2 relative h-96 md:h-auto">
+                            <img src="https://images.unsplash.com/photo-1616166330003-8e10464618a3?auto=format&fit=crop&q=80&w=1000" className="absolute inset-0 w-full h-full object-cover" alt="Taller de Joyería" />
+                            <div className="absolute inset-0 bg-gold-dark/20 mix-blend-overlay"></div>
+                        </div>
+                        <div className="md:w-1/2 p-8 md:p-12 flex flex-col justify-center">
+                            <h2 className="text-3xl font-serif font-bold text-gray-800 mb-6">Nuestra Historia</h2>
+                            <p className="text-gray-600 mb-6 leading-relaxed">
+                                En <strong>Joyas Solo Para Mí</strong>, creemos que cada pieza cuenta una historia. Fundada en 2020 por la maestra orfebre Paula Garcia Puiconn, nuestra boutique nació con una misión simple: crear joyería que no solo adorne, sino que empodere.
+                            </p>
+                            <p className="text-gray-600 mb-6 leading-relaxed">
+                                Trabajamos con artesanos locales y materiales éticos para asegurar que cada anillo, collar y pulsera tenga un impacto positivo tanto en quien lo usa como en el mundo.
+                            </p>
+                            <div className="grid grid-cols-2 gap-4 mt-4">
+                                <div className="text-center p-4 bg-gray-50 rounded border border-gray-100">
+                                    <span className="block text-2xl font-bold text-gold-main mb-1">15+</span>
+                                    <span className="text-xs text-gray-500 uppercase tracking-widest">Años de Experiencia</span>
+                                </div>
+                                <div className="text-center p-4 bg-gray-50 rounded border border-gray-100">
+                                    <span className="block text-2xl font-bold text-gold-main mb-1">1k+</span>
+                                    <span className="text-xs text-gray-500 uppercase tracking-widest">Clientes Felices</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div className="mt-12 text-center">
+                        <h3 className="text-2xl font-serif font-bold text-gray-800 mb-8">Nuestros Valores</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                            <div className="p-6 bg-white rounded shadow-sm hover:shadow-md transition-shadow">
+                                <div className="w-12 h-12 bg-gold-light/30 rounded-full flex items-center justify-center mx-auto mb-4 text-gold-dark">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                                </div>
+                                <h4 className="font-bold text-lg mb-2">Autenticidad</h4>
+                                <p className="text-sm text-gray-500">Materiales genuinos certificados.</p>
+                            </div>
+                            <div className="p-6 bg-white rounded shadow-sm hover:shadow-md transition-shadow">
+                                <div className="w-12 h-12 bg-gold-light/30 rounded-full flex items-center justify-center mx-auto mb-4 text-gold-dark">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"></path><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"></path><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"></path><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"></path></svg>
+                                </div>
+                                <h4 className="font-bold text-lg mb-2">Artesanía</h4>
+                                <p className="text-sm text-gray-500">Hecho a mano por expertos.</p>
+                            </div>
+                            <div className="p-6 bg-white rounded shadow-sm hover:shadow-md transition-shadow">
+                                <div className="w-12 h-12 bg-gold-light/30 rounded-full flex items-center justify-center mx-auto mb-4 text-gold-dark">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+                                </div>
+                                <h4 className="font-bold text-lg mb-2">Pasión</h4>
+                                <p className="text-sm text-gray-500">Amor en cada detalle.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+
             const renderHome = () => (
                 <div className="fade-in">
                     <div className="relative w-full h-[500px] overflow-hidden">
@@ -184,8 +360,9 @@
 
             const renderCatalog = () => (
                 <div className="max-w-7xl mx-auto px-4 py-8 fade-in flex flex-col md:flex-row gap-8">
-                    {/* Sidebar Filtros (Estilo de la imagen 814ac3) */}
+                    {/* Sidebar Filtros */}
                     <div className="w-full md:w-64 flex-shrink-0 space-y-6">
+                        {/* Filtro Categoría */}
                         <div className="bg-white p-5 rounded-lg shadow-sm border border-gold-light/20">
                             <h3 className="font-bold text-gray-800 mb-4 border-b pb-2">Categoría</h3>
                             <ul className="space-y-2 text-sm text-gray-600">
@@ -200,12 +377,14 @@
                             </ul>
                         </div>
 
-                        {/* Aquí cambié el filtro de "Tallas" por "Material" */}
+                        {/* Filtro Material (Ya funciona) */}
                         <div className="bg-white p-5 rounded-lg shadow-sm border border-gold-light/20">
                             <h3 className="font-bold text-gray-800 mb-4 border-b pb-2">Material</h3>
                             <div className="flex flex-wrap gap-2">
-                                {["Oro", "Plata", "Oro Rosa", "Diamante"].map(material => (
-                                    <span key={material} className="px-3 py-1 flex items-center justify-center border border-gray-200 text-xs text-gray-500 rounded-full hover:border-gold-main hover:text-gold-main cursor-pointer transition-colors">
+                                {materials.map(material => (
+                                    <span key={material} 
+                                        onClick={() => setSelectedMaterial(material)}
+                                        className={`px-3 py-1 flex items-center justify-center border text-xs rounded-full cursor-pointer transition-colors ${selectedMaterial === material ? 'bg-gold-main text-white border-gold-main' : 'border-gray-200 text-gray-500 hover:border-gold-main hover:text-gold-main'}`}>
                                         {material}
                                     </span>
                                 ))}
@@ -215,41 +394,53 @@
 
                     {/* Grid de Productos */}
                     <div className="flex-1">
-                        <div className="flex justify-between items-center mb-6">
-                            <p className="text-sm text-gray-500">Mostrando {filteredProducts.length} productos</p>
+                        <div className="flex justify-between items-center mb-6 bg-white p-3 rounded shadow-sm">
+                            <p className="text-sm text-gray-500 pl-2">Mostrando {filteredProducts.length} productos</p>
                             <div className="flex items-center gap-2">
                                 <span className="text-sm text-gray-500">Ordenar por:</span>
-                                <select className="text-sm border-none bg-transparent font-bold text-gray-700 focus:outline-none cursor-pointer">
+                                <select 
+                                    className="text-sm border-none bg-transparent font-bold text-gray-700 focus:outline-none cursor-pointer"
+                                    value={sortOption}
+                                    onChange={(e) => setSortOption(e.target.value)}
+                                >
                                     <option>Relevancia</option>
                                     <option>Precio: Menor a Mayor</option>
+                                    <option>Precio: Mayor a Menor</option>
                                 </select>
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {filteredProducts.map(product => (
-                                <div key={product.id} className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 group">
-                                    <div className="relative h-64 overflow-hidden bg-gray-100">
-                                        <img src={product.image} alt={product.name} className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700" />
-                                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors"></div>
-                                    </div>
-                                    <div className="p-4">
-                                        <p className="text-xs text-gold-dark uppercase tracking-widest mb-1">{product.category}</p>
-                                        <h3 className="font-serif text-lg text-gray-900 mb-1">{product.name}</h3>
-                                        <p className="text-gray-500 text-sm mb-3">Talla: {product.size} | Color: {product.color}</p>
-                                        <div className="flex items-center justify-between">
-                                            <span className="text-xl font-bold text-gold-text">${product.price.toFixed(2)}</span>
-                                            <button 
-                                                onClick={() => addToCart(product)}
-                                                className="bg-gray-900 hover:bg-gold-main text-white px-4 py-2 rounded text-sm font-bold transition-colors flex items-center gap-2"
-                                            >
-                                                <Icons.Cart /> Agregar
-                                            </button>
+                        {filteredProducts.length === 0 ? (
+                            <div className="text-center py-20">
+                                <p className="text-gray-400 text-lg">No se encontraron joyas con esos filtros.</p>
+                                <button onClick={() => {setSelectedCategory("Todas"); setSelectedMaterial("Todos"); setSearchTerm("");}} className="mt-4 text-gold-main underline">Limpiar filtros</button>
+                            </div>
+                        ) : (
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                                {filteredProducts.map(product => (
+                                    <div key={product.id} className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 group">
+                                        <div className="relative h-64 overflow-hidden bg-gray-100">
+                                            <img src={product.image} alt={product.name} className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700" />
+                                            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors"></div>
+                                        </div>
+                                        <div className="p-4">
+                                            <p className="text-xs text-gold-dark uppercase tracking-widest mb-1">{product.category}</p>
+                                            <h3 className="font-serif text-lg text-gray-900 mb-1">{product.name}</h3>
+                                            <p className="text-gray-500 text-sm mb-3">Material: {product.material}</p>
+                                            <div className="flex items-center justify-between">
+                                                <span className="text-xl font-bold text-gold-text">${product.price.toFixed(2)}</span>
+                                                <button 
+                                                    onClick={() => addToCart(product)}
+                                                    className="bg-gray-900 hover:bg-gold-main text-white px-4 py-2 rounded text-sm font-bold transition-colors flex items-center gap-2"
+                                                >
+                                                    <Icons.Cart /> Agregar
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            ))}
-                        </div>
+                                ))}
+                            </div>
+                        )}
                     </div>
                 </div>
             );
@@ -265,14 +456,13 @@
                         </div>
                     ) : (
                         <div className="flex flex-col lg:flex-row gap-8">
-                            {/* Lista de Items (Estilo imagen 814a6c) */}
                             <div className="flex-1 space-y-4">
                                 {cart.map(item => (
                                     <div key={item.id} className="bg-white p-4 rounded-lg shadow-sm flex gap-4 items-center border border-gold-light/10">
                                         <img src={item.image} className="w-24 h-24 object-cover rounded bg-gray-100" />
                                         <div className="flex-1">
                                             <h4 className="font-bold text-gray-800 text-lg">{item.name}</h4>
-                                            <p className="text-sm text-gray-500 mb-2">Código: #{1000 + item.id}</p>
+                                            <p className="text-sm text-gray-500 mb-2">Material: {item.material}</p>
                                             
                                             <div className="flex items-center gap-4">
                                                 <div className="flex items-center border border-gray-300 rounded">
@@ -292,11 +482,9 @@
                                 ))}
                             </div>
 
-                            {/* Resumen del Pedido */}
                             <div className="w-full lg:w-96">
                                 <div className="bg-white p-6 rounded-lg shadow-lg border border-gold-light/20 sticky top-24">
                                     <h3 className="font-bold text-lg mb-6 uppercase tracking-wider border-b pb-2">Resumen del Pedido</h3>
-                                    
                                     <div className="space-y-3 mb-6">
                                         <div className="flex justify-between text-gray-600">
                                             <span>Subtotal</span>
@@ -307,29 +495,15 @@
                                             <span className="text-green-600 font-bold">GRATIS</span>
                                         </div>
                                     </div>
-
-                                    <div className="mb-6">
-                                        <button className="flex justify-between items-center w-full text-sm font-bold text-gray-700 hover:text-gold-main">
-                                            ¿Tienes un código promocional?
-                                            <Icons.ChevronDown />
-                                        </button>
-                                    </div>
-
                                     <div className="border-t border-gray-200 pt-4 mb-6">
                                         <div className="flex justify-between items-end">
                                             <span className="font-bold text-xl text-gray-800">Total Estimado</span>
                                             <span className="font-bold text-2xl text-gray-900">${cartTotal.toFixed(2)}</span>
                                         </div>
                                     </div>
-
                                     <button onClick={handleCheckout} className="w-full bg-gold-main hover:bg-gold-dark text-white font-bold py-4 rounded-lg shadow-md transition-all text-lg mb-4">
                                         Pagar Ahora
                                     </button>
-                                    
-                                    <div className="flex items-center justify-center gap-2 text-xs text-gray-400">
-                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-                                        Pago 100% seguro y protegido
-                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -339,7 +513,9 @@
 
             // HEADER Y LAYOUT PRINCIPAL
             return (
-                <div className="min-h-screen flex flex-col font-sans bg-bg-cream text-gray-800">
+                <div className="min-h-screen flex flex-col font-sans text-gray-800">
+                    <AccessibilityMenu toggleMode={toggleAccessMode} activeModes={accessModes} />
+                    
                     <SuccessModal 
                         isOpen={showSuccessModal} 
                         onClose={() => { setShowSuccessModal(false); setView('home'); }} 
@@ -347,29 +523,24 @@
                         count={sales.length > 0 ? sales[0].items.length : 0}
                     />
 
-                    {/* Barra Superior */}
                     <div className="bg-gray-900 text-gold-light text-xs text-center py-2 tracking-widest uppercase font-bold">
                         Envíos gratis en compras superiores a $500
                     </div>
 
-                    {/* Navegación */}
-                    <nav className="bg-white shadow-sm sticky top-0 z-40">
+                    <nav className="bg-white shadow-sm sticky top-0 z-40 transition-colors">
                         <div className="max-w-7xl mx-auto px-4">
                             <div className="flex justify-between items-center h-20">
-                                {/* Logo */}
                                 <div className="flex items-center cursor-pointer" onClick={() => setView('home')}>
                                     <span className="text-3xl font-serif font-bold text-gray-900">Joyas</span>
                                     <span className="text-3xl font-serif font-bold text-gold-main ml-1">ParaMí</span>
                                 </div>
 
-                                {/* Menú Central */}
                                 <div className="hidden md:flex space-x-10">
                                     <button onClick={() => setView('home')} className={`text-sm uppercase tracking-widest hover:text-gold-main font-bold ${view === 'home' ? 'text-gold-main' : 'text-gray-500'}`}>Inicio</button>
                                     <button onClick={() => setView('catalog')} className={`text-sm uppercase tracking-widest hover:text-gold-main font-bold ${view === 'catalog' ? 'text-gold-main' : 'text-gray-500'}`}>Catálogo</button>
-                                    <button className="text-sm uppercase tracking-widest hover:text-gold-main font-bold text-gray-500">Nosotros</button>
+                                    <button onClick={() => setView('nosotros')} className={`text-sm uppercase tracking-widest hover:text-gold-main font-bold ${view === 'nosotros' ? 'text-gold-main' : 'text-gray-500'}`}>Nosotros</button>
                                 </div>
 
-                                {/* Iconos Derecha */}
                                 <div className="flex items-center gap-6">
                                     <div className="relative hidden sm:block">
                                         <input 
@@ -380,7 +551,6 @@
                                         />
                                         <span className="absolute left-0 top-1.5 text-gray-400"><Icons.Search /></span>
                                     </div>
-                                    <button className="hover:text-gold-main transition-colors"><Icons.User /></button>
                                     <button onClick={() => setView('cart')} className="relative hover:text-gold-main transition-colors">
                                         <Icons.Cart />
                                         {cartCount > 0 && (
@@ -394,15 +564,14 @@
                         </div>
                     </nav>
 
-                    {/* Contenido Dinámico */}
                     <main className="flex-grow">
                         {view === 'home' && renderHome()}
                         {view === 'catalog' && renderCatalog()}
                         {view === 'cart' && renderCart()}
+                        {view === 'nosotros' && renderNosotros()}
                     </main>
 
-                    {/* Footer */}
-                    <footer className="bg-white border-t border-gray-100 mt-12 py-12">
+                    <footer className="bg-white border-t border-gray-100 mt-12 py-12 transition-colors">
                         <div className="max-w-7xl mx-auto px-4 text-center">
                             <h3 className="text-2xl font-serif font-bold text-gray-900 mb-2">Joyas Solo Para Mí</h3>
                             <p className="text-gray-500 text-sm mb-6">La elegancia es la única belleza que nunca se desvanece.</p>
